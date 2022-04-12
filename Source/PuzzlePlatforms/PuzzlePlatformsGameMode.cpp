@@ -12,4 +12,7 @@ APuzzlePlatformsGameMode::APuzzlePlatformsGameMode()
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
+#if UE_BUILD_SHIPPING
+	//this->bUseSeamlessTravel = true;
+#endif
 }

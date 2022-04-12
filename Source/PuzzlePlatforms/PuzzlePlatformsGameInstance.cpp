@@ -15,7 +15,6 @@ void UPuzzlePlatformsGameInstance::HostGame()
 		return;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Hosting Game"));
 	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, TEXT("Hosting Game"));
 
 	this->GetWorld()->ServerTravel(TEXT("/Game/ThirdPersonCPP/Maps/ThirdPersonExampleMap?listen"));
@@ -23,8 +22,8 @@ void UPuzzlePlatformsGameInstance::HostGame()
 
 void UPuzzlePlatformsGameInstance::JoinGame(FString &IpAddress)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Joining Game"));
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, TEXT("Joining Game " + IpAddress));
+	FString TrimmedIp = IpAddress.TrimStartAndEnd();
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, TEXT("Joining Game " + TrimmedIp));
 
 	this->GetFirstLocalPlayerController()->ClientTravel(IpAddress, ETravelType::TRAVEL_Absolute);
 }

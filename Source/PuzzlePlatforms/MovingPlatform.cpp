@@ -32,8 +32,22 @@ void AMovingPlatform::Tick(float DeltaSeconds)
 	}
 }
 
+void AMovingPlatform::AddActiveTrigger()
+{
+	this->ActiveTriggers += 1;
+}
+
+void AMovingPlatform::RemoveActiveTrigger()
+{
+	this->ActiveTriggers -= 1;
+}
+
 void AMovingPlatform::Move(const float DeltaSeconds)
 {
+	if (this->ActiveTriggers < 1) {
+		return;
+	}
+
 	FVector CurrentLocation = this->GetActorLocation();
 
 	if (this->_MovingToDestination) {

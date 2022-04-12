@@ -21,6 +21,9 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	void AddActiveTrigger();
+	void RemoveActiveTrigger();
+
 protected:
 	void Move(const float DeltaSeconds);
 
@@ -30,6 +33,9 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true", MakeEditWidget = "true"))
 	FVector RelativeFinalDestination;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	int ActiveTriggers = 1;
 
 	FVector _WorldTargetLocation;
 	FVector _InitialLocation;

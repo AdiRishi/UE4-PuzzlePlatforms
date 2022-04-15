@@ -15,6 +15,8 @@ class PUZZLEPLATFORMS_API UPuzzlePlatformsGameInstance : public UGameInstance
 	GENERATED_BODY()
 	
 public:
+	UPuzzlePlatformsGameInstance(const FObjectInitializer& ObjectInitializer);
+
 	virtual void Init() override;
 
 	UFUNCTION(Exec)
@@ -22,4 +24,14 @@ public:
 
 	UFUNCTION(Exec)
 	void JoinGame(FString& IpAddress);
+
+	UFUNCTION(BlueprintCallable, Category = "UMG Game")
+	void LoadMainMenu();
+
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UUserWidget> MenuClass;
+
+	UPROPERTY()
+	UUserWidget* CurrentWidget;
 };

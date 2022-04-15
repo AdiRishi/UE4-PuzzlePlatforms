@@ -2,6 +2,7 @@
 
 
 #include "PuzzlePlatformsGameInstance.h"
+#include "PuzzlePlatforms/MenuSystem/MainMenu.h"
 
 #include "GameFramework/GameModeBase.h"
 #include "UObject/ConstructorHelpers.h"
@@ -34,7 +35,7 @@ void UPuzzlePlatformsGameInstance::HostGame()
 	this->GetWorld()->ServerTravel(TEXT("/Game/ThirdPersonCPP/Maps/ThirdPersonExampleMap?listen"));
 }
 
-void UPuzzlePlatformsGameInstance::JoinGame(FString &IpAddress)
+void UPuzzlePlatformsGameInstance::JoinGame(const FString &IpAddress)
 {
 	FString TrimmedIp = IpAddress.TrimStartAndEnd();
 	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, TEXT("Joining Game " + TrimmedIp));
@@ -51,13 +52,11 @@ void UPuzzlePlatformsGameInstance::LoadMainMenu()
 
 	if (this->MenuClass != nullptr) {
 		this->CurrentWidget = CreateWidget(this->GetWorld(), this->MenuClass);
+		UE_LOG(LogTemp, Warning, TEXT("Before Add to viewport"));
 		this->CurrentWidget->AddToViewport();
-	}
 
-	APlayerController* PlayerController = this->GetFirstLocalPlayerController();
-	FInputModeUIOnly UIInputMode;
-	UIInputMode.SetWidgetToFocus(this->CurrentWidget->TakeWidget());
-	UIInputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-	PlayerController->bShowMouseCursor = true;
-	PlayerController->SetInputMode(UIInputMode);
+		if (UMainMenu* MainMenu = Cast<UMainMenu>(this->CurrentWidget)) {
+			MainMenu->SetMenuInterface(this);
+		}
+	}
 }

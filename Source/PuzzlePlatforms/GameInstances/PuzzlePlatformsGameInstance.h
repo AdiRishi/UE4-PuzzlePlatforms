@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "PuzzlePlatforms/MenuSystem/MenuInterface.h"
+
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "PuzzlePlatformsGameInstance.generated.h"
@@ -10,7 +12,7 @@
  * 
  */
 UCLASS()
-class PUZZLEPLATFORMS_API UPuzzlePlatformsGameInstance : public UGameInstance
+class PUZZLEPLATFORMS_API UPuzzlePlatformsGameInstance : public UGameInstance, public IMenuInterface
 {
 	GENERATED_BODY()
 	
@@ -20,10 +22,10 @@ public:
 	virtual void Init() override;
 
 	UFUNCTION(Exec)
-	void HostGame();
+	virtual void HostGame() override;
 
 	UFUNCTION(Exec)
-	void JoinGame(FString& IpAddress);
+	virtual void JoinGame(const FString& IpAddress) override;
 
 	UFUNCTION(BlueprintCallable, Category = "UMG Game")
 	void LoadMainMenu();

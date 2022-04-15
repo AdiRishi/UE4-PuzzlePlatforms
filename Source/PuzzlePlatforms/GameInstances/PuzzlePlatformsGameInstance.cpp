@@ -19,8 +19,6 @@ UPuzzlePlatformsGameInstance::UPuzzlePlatformsGameInstance(const FObjectInitiali
 void UPuzzlePlatformsGameInstance::Init()
 {
 	Super::Init();
-
-	UE_LOG(LogTemp, Warning, TEXT("MenuClass name is %s"), *this->MenuClass->GetName());
 }
 
 void UPuzzlePlatformsGameInstance::HostGame()
@@ -52,7 +50,6 @@ void UPuzzlePlatformsGameInstance::LoadMainMenu()
 
 	if (this->MenuClass != nullptr) {
 		this->CurrentWidget = CreateWidget(this->GetWorld(), this->MenuClass);
-		UE_LOG(LogTemp, Warning, TEXT("Before Add to viewport"));
 		this->CurrentWidget->AddToViewport();
 
 		if (UMainMenu* MainMenu = Cast<UMainMenu>(this->CurrentWidget)) {

@@ -9,6 +9,8 @@
 // Forward Declarations
 // ====================
 class UButton; // #include "Components/Button.h"
+class UWidgetSwitcher; // #include "Components/WidgetSwitcher.h"
+class UEditableTextBox; // #include "Components/EditableTextBox.h"
 class IMenuInterface; // #include "MenuInterface.h
 
 /**
@@ -31,13 +33,31 @@ protected:
 	UButton* HostButton;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	UButton* JoinButton;
+	UButton* JoinMenuButton;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UButton* CancelJoinMenuButton;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UButton* JoinGameButton;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UWidgetSwitcher* MenuSwitcher;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UEditableTextBox* IpAddressTextBox;
 
 	UFUNCTION()
-	virtual void HandleHostClick();
+	virtual void HandleHostButtonClick();
 
 	UFUNCTION()
-	virtual void HandleJoinClick();
+	virtual void HandleJoinMenuButtonClick();
+
+	UFUNCTION()
+	virtual void HandleCancelButtonClick();
+
+	UFUNCTION()
+	virtual void HandleJoinGameButtonClick();
 
 	virtual void OnLevelRemovedFromWorld(ULevel* InLevel, UWorld* InWorld) override;
 

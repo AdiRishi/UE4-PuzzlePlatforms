@@ -8,6 +8,8 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "OnlineSubsystem.h"
+#include "OnlineSessionSettings.h"
 
 UPuzzlePlatformsGameInstance::UPuzzlePlatformsGameInstance(const FObjectInitializer& ObjectInitializer): UGameInstance(ObjectInitializer)
 {
@@ -25,6 +27,20 @@ UPuzzlePlatformsGameInstance::UPuzzlePlatformsGameInstance(const FObjectInitiali
 void UPuzzlePlatformsGameInstance::Init()
 {
 	Super::Init();
+
+	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
+	if (Subsystem != nullptr) {
+		UE_LOG(LogTemp, Warning, TEXT("Found Subsystem %s"), *Subsystem->GetSubsystemName().ToString());
+		this->SessionInterface = Subsystem->GetSessionInterface();
+		if (this->SessionInterface.IsValid()) {
+			UE_LOG(LogTemp, Warning, TEXT("Found Session Interface"));
+			this->SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnCreateSessionComplete);
+			this->SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnDestroySessionComplete);
+		}
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("No Subsystem found"));
+	}
 }
 
 TSubclassOf<UUserWidget> UPuzzlePlatformsGameInstance::GetMainMenuClass() const
@@ -44,9 +60,50 @@ void UPuzzlePlatformsGameInstance::HostGame()
 		return;
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, TEXT("Hosting Game"));
+	if (this->SessionInterface.IsValid()) {
+		FNamedOnlineSession* ExistingSession = SessionInterface->GetNamedSession(NAME_GameSession);
+		if (ExistingSession == nullptr) {
+			this->CreateSession();
+		}
+		else {
+			this->bCreateOnDestroyRequested = true;
+			this->SessionInterface->DestroySession(NAME_GameSession);
+		}
+	}
+}
 
-	this->GetWorld()->ServerTravel(TEXT("/Game/ThirdPersonCPP/Maps/ThirdPersonExampleMap?listen"));
+void UPuzzlePlatformsGameInstance::CreateSession()
+{
+	FOnlineSessionSettings SessionSettings;
+	if (this->SessionInterface.IsValid()) {
+		if (!this->SessionInterface->CreateSession(0, NAME_GameSession, SessionSettings)) {
+			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Unable to host game as a server"));
+		}
+	}
+}
+
+void UPuzzlePlatformsGameInstance::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful) {
+	if (bWasSuccessful) {
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, TEXT("Hosting Game"));
+
+		this->GetWorld()->ServerTravel(TEXT("/Game/ThirdPersonCPP/Maps/ThirdPersonExampleMap?listen"));
+	}
+	else {
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Game Hosting failed - session creation failure"));
+	}
+}
+
+void UPuzzlePlatformsGameInstance::OnDestroySessionComplete(FName SessionName, bool bWasSuccessful)
+{
+	if (bWasSuccessful) {
+		if (this->bCreateOnDestroyRequested) {
+			this->CreateSession();
+			this->bCreateOnDestroyRequested = false;
+		}
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("Session destruction failed"));
+	}
 }
 
 void UPuzzlePlatformsGameInstance::JoinGame(const FString &IpAddress)

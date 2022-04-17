@@ -2,10 +2,11 @@
 
 #pragma once
 
-#include "PuzzlePlatforms/MenuSystem/MenuInterface.h"
-
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "Interfaces/OnlineSessionInterface.h"
+
+#include "PuzzlePlatforms/MenuSystem/MenuInterface.h"
 #include "PuzzlePlatformsGameInstance.generated.h"
 
 /**
@@ -49,4 +50,11 @@ private:
 
 	UPROPERTY()
 	UUserWidget* CurrentWidget;
+
+	IOnlineSessionPtr SessionInterface;
+	bool bCreateOnDestroyRequested = false;
+
+	void CreateSession();
+	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
+	void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
 };

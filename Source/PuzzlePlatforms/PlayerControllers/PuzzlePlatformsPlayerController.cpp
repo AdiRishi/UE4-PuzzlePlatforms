@@ -13,7 +13,6 @@ void APuzzlePlatformsPlayerController::BeginPlay()
 	if (ensure(GameInstance != nullptr)) {
 		this->PuzzlePlatformsGameInstance = Cast<UPuzzlePlatformsGameInstance>(GameInstance);
 	}
-	UE_LOG(LogTemp, Warning, TEXT("PlayerController Loaded"));
 }
 
 void APuzzlePlatformsPlayerController::SetupInputComponent()
@@ -21,7 +20,6 @@ void APuzzlePlatformsPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 
 	if (ensure(this->InputComponent != nullptr)) {
-		UE_LOG(LogTemp, Warning, TEXT("Setting up input binding"));
 		this->InputComponent->BindAction(TEXT("MenuOpen"), EInputEvent::IE_Pressed, this, &APuzzlePlatformsPlayerController::HandleInGameMenuAction);
 	}
 }

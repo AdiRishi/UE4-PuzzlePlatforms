@@ -8,7 +8,7 @@
 #include "Components/WidgetSwitcher.h"
 #include "Components/EditableTextBox.h"
 
-UMainMenu::UMainMenu(const FObjectInitializer& ObjectInitializer): UUserWidget(ObjectInitializer)
+UMainMenu::UMainMenu(const FObjectInitializer& ObjectInitializer): UMenuWidgetBase(ObjectInitializer)
 {
 	this->bIsFocusable = true;
 }
@@ -34,22 +34,11 @@ bool UMainMenu::Initialize()
 		this->JoinGameButton->OnClicked.AddDynamic(this, &UMainMenu::HandleJoinGameButtonClick);
 	}
 
-	APlayerController* PlayerController = this->GetOwningPlayer();
-	if (PlayerController != nullptr) {
-		FInputModeUIOnly UIInputMode;
-		UIInputMode.SetWidgetToFocus(this->TakeWidget());
-		UIInputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-		PlayerController->bShowMouseCursor = true;
-		PlayerController->SetInputMode(UIInputMode);
-	}
+	this->Setup();
+	this->AddToViewport();
 
 	return true;
 
-}
-
-void UMainMenu::SetMenuInterface(IMenuInterface* Interface)
-{
-	this->MenuInterface = Interface;
 }
 
 void UMainMenu::HandleHostButtonClick()
@@ -62,14 +51,14 @@ void UMainMenu::HandleHostButtonClick()
 void UMainMenu::HandleJoinMenuButtonClick()
 {
 	if (ensure(this->MenuSwitcher != nullptr)) {
-		this->MenuSwitcher->SetActiveWidgetIndex(1);
+		this->MenuSwitcher->SetActiveWidgetIndex(ESubMenu::JoinGameMenu);
 	}
 }
 
 void UMainMenu::HandleCancelButtonClick()
 {
 	if (ensure(this->MenuSwitcher != nullptr)) {
-		this->MenuSwitcher->SetActiveWidgetIndex(0);
+		this->MenuSwitcher->SetActiveWidgetIndex(ESubMenu::MainMenu);
 	}
 }
 
@@ -77,17 +66,5 @@ void UMainMenu::HandleJoinGameButtonClick()
 {
 	if (ensure(this->MenuInterface != nullptr) && ensure(this->IpAddressTextBox != nullptr)) {
 		this->MenuInterface->JoinGame(this->IpAddressTextBox->GetText().BuildSourceString());
-	}
-}
-
-void UMainMenu::OnLevelRemovedFromWorld(ULevel* InLevel, UWorld* InWorld)
-{
-	Super::OnLevelRemovedFromWorld(InLevel, InWorld);
-
-	APlayerController* PlayerController = this->GetOwningPlayer();
-	if (ensure(PlayerController != nullptr)) {
-		FInputModeGameOnly GameInputMode;
-		PlayerController->bShowMouseCursor = false;
-		PlayerController->SetInputMode(GameInputMode);
 	}
 }

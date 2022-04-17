@@ -21,18 +21,28 @@ public:
 
 	virtual void Init() override;
 
+	TSubclassOf<UUserWidget> GetMainMenuClass() const;
+
+	TSubclassOf<UUserWidget> GetInGameMenuClass() const;
+
 	UFUNCTION(Exec)
 	virtual void HostGame() override;
 
 	UFUNCTION(Exec)
 	virtual void JoinGame(const FString& IpAddress) override;
 
+	UFUNCTION(Exec)
+	virtual void QuitGame() override;
+
 	UFUNCTION(BlueprintCallable, Category = "UMG Game")
-	void LoadMainMenu();
+	void LoadGameMenu(TSubclassOf<UUserWidget> MenuClass);
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<UUserWidget> MenuClass;
+	TSubclassOf<UUserWidget> MainMenuClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UUserWidget> InGameMenuClass;
 
 	UPROPERTY()
 	UUserWidget* CurrentWidget;

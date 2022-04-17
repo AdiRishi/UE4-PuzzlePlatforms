@@ -2,6 +2,7 @@
 
 #include "PuzzlePlatforms/GameModes/PuzzlePlatformsGameMode.h"
 #include "PuzzlePlatforms/Characters/PuzzlePlatformsCharacter.h"
+#include "PuzzlePlatforms/PlayerControllers/PuzzlePlatformsPlayerController.h"
 #include "UObject/ConstructorHelpers.h"
 
 APuzzlePlatformsGameMode::APuzzlePlatformsGameMode()
@@ -12,6 +13,7 @@ APuzzlePlatformsGameMode::APuzzlePlatformsGameMode()
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
+	PlayerControllerClass = APuzzlePlatformsPlayerController::StaticClass();
 #if UE_BUILD_SHIPPING
 	//this->bUseSeamlessTravel = true;
 #endif

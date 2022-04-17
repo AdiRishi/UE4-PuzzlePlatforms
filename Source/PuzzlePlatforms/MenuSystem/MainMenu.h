@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "MenuWidgetBase.h"
 #include "MainMenu.generated.h"
 
 // Forward Declarations
@@ -13,11 +13,18 @@ class UWidgetSwitcher; // #include "Components/WidgetSwitcher.h"
 class UEditableTextBox; // #include "Components/EditableTextBox.h"
 class IMenuInterface; // #include "MenuInterface.h
 
+UENUM()
+enum ESubMenu
+{
+	MainMenu = 0 UMETA(DisplayName = "MainMenu"),
+	JoinGameMenu = 1 UMETA(DisplayName = "JoinGameMenu"),
+};
+
 /**
  * 
  */
 UCLASS()
-class PUZZLEPLATFORMS_API UMainMenu : public UUserWidget
+class PUZZLEPLATFORMS_API UMainMenu : public UMenuWidgetBase
 {
 	GENERATED_BODY()
 
@@ -25,8 +32,6 @@ public:
 	UMainMenu(const FObjectInitializer& ObjectInitializer);
 
 	virtual bool Initialize() override;
-
-	void SetMenuInterface(IMenuInterface* Interface);
 
 protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
@@ -58,9 +63,4 @@ protected:
 
 	UFUNCTION()
 	virtual void HandleJoinGameButtonClick();
-
-	virtual void OnLevelRemovedFromWorld(ULevel* InLevel, UWorld* InWorld) override;
-
-private:
-	IMenuInterface* MenuInterface;
 };

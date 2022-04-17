@@ -2,7 +2,7 @@
 
 
 #include "PuzzlePlatformsGameInstance.h"
-#include "PuzzlePlatforms/MenuSystem/MainMenu.h"
+#include "PuzzlePlatforms/MenuSystem/MenuWidgetBase.h"
 
 #include "GameFramework/GameModeBase.h"
 #include "UObject/ConstructorHelpers.h"
@@ -10,15 +10,30 @@
 
 UPuzzlePlatformsGameInstance::UPuzzlePlatformsGameInstance(const FObjectInitializer& ObjectInitializer): UGameInstance(ObjectInitializer)
 {
-	ConstructorHelpers::FClassFinder<UUserWidget> BlueprintMenuClass(TEXT("/Game/MenuSystem/WBP_AdvMainMenu"));
-	if (BlueprintMenuClass.Class != nullptr) {
-		this->MenuClass = BlueprintMenuClass.Class;
+	ConstructorHelpers::FClassFinder<UUserWidget> BlueprintMainMenuClass(TEXT("/Game/MenuSystem/WBP_AdvMainMenu"));
+	if (BlueprintMainMenuClass.Class != nullptr) {
+		this->MainMenuClass = BlueprintMainMenuClass.Class;
+	}
+
+	ConstructorHelpers::FClassFinder<UUserWidget> BlueprintInGameMenuClass(TEXT("/Game/MenuSystem/WBP_AdvInGameMenu"));
+	if (BlueprintInGameMenuClass.Class != nullptr) {
+		this->InGameMenuClass = BlueprintInGameMenuClass.Class;
 	}
 }
 
 void UPuzzlePlatformsGameInstance::Init()
 {
 	Super::Init();
+}
+
+TSubclassOf<UUserWidget> UPuzzlePlatformsGameInstance::GetMainMenuClass() const
+{
+	return this->MainMenuClass;
+}
+
+TSubclassOf<UUserWidget> UPuzzlePlatformsGameInstance::GetInGameMenuClass() const
+{
+	return this->InGameMenuClass;
 }
 
 void UPuzzlePlatformsGameInstance::HostGame()
@@ -41,19 +56,29 @@ void UPuzzlePlatformsGameInstance::JoinGame(const FString &IpAddress)
 	this->GetFirstLocalPlayerController()->ClientTravel(IpAddress, ETravelType::TRAVEL_Absolute);
 }
 
-void UPuzzlePlatformsGameInstance::LoadMainMenu()
+void UPuzzlePlatformsGameInstance::QuitGame()
+{
+	APlayerController* PlayerController = this->GetFirstLocalPlayerController();
+	if (ensure(PlayerController != nullptr)) {
+		PlayerController->ClientTravel(TEXT("/Game/MenuSystem/MainMenuLevel"), ETravelType::TRAVEL_Absolute);
+	}
+}
+
+void UPuzzlePlatformsGameInstance::LoadGameMenu(TSubclassOf<UUserWidget> MenuClass)
 {
 	if (this->CurrentWidget != nullptr) {
+		if (UMenuWidgetBase* MenuWidgetInstance = Cast<UMenuWidgetBase>(this->CurrentWidget)) {
+			MenuWidgetInstance->Teardown();
+		}
 		this->CurrentWidget->RemoveFromViewport();
 		this->CurrentWidget = nullptr;
 	}
 
-	if (this->MenuClass != nullptr) {
-		this->CurrentWidget = CreateWidget(this->GetWorld(), this->MenuClass);
-		this->CurrentWidget->AddToViewport();
+	if (MenuClass != nullptr) {
+		this->CurrentWidget = CreateWidget(this->GetWorld(), MenuClass);
 
-		if (UMainMenu* MainMenu = Cast<UMainMenu>(this->CurrentWidget)) {
-			MainMenu->SetMenuInterface(this);
+		if (UMenuWidgetBase* MenuWidgetInstance = Cast<UMenuWidgetBase>(this->CurrentWidget)) {
+			MenuWidgetInstance->SetMenuInterface(this);
 		}
 	}
 }

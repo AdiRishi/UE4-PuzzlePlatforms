@@ -25,4 +25,6 @@ public:
 	virtual void HostGame() = 0;
 
 	virtual void JoinGame(const FString &IpAddress) = 0;
+
+	virtual void QuitGame() = 0;
 };

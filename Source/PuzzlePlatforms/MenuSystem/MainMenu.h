@@ -41,6 +41,9 @@ protected:
 	UButton* JoinMenuButton;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UButton* QuitGameButton;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UButton* CancelJoinMenuButton;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
@@ -57,6 +60,9 @@ protected:
 
 	UFUNCTION()
 	virtual void HandleJoinMenuButtonClick();
+
+	UFUNCTION()
+	virtual void HandleQuitGameButton();
 
 	UFUNCTION()
 	virtual void HandleCancelButtonClick();

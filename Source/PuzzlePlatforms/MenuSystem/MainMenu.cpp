@@ -27,6 +27,9 @@ bool UMainMenu::Initialize()
 	if (ensure(this->JoinMenuButton != nullptr)) {
 		this->JoinMenuButton->OnClicked.AddDynamic(this, &UMainMenu::HandleJoinMenuButtonClick);
 	}
+	if (ensure(this->QuitGameButton != nullptr)) {
+		this->QuitGameButton->OnClicked.AddDynamic(this, &UMainMenu::HandleQuitGameButton);
+	}
 	if (ensure(this->CancelJoinMenuButton != nullptr)) {
 		this->CancelJoinMenuButton->OnClicked.AddDynamic(this, &UMainMenu::HandleCancelButtonClick);
 	}
@@ -52,6 +55,13 @@ void UMainMenu::HandleJoinMenuButtonClick()
 {
 	if (ensure(this->MenuSwitcher != nullptr)) {
 		this->MenuSwitcher->SetActiveWidgetIndex(ESubMenu::JoinGameMenu);
+	}
+}
+
+void UMainMenu::HandleQuitGameButton()
+{
+	if (ensure(this->MenuInterface != nullptr)) {
+		this->MenuInterface->QuitGame();
 	}
 }
 

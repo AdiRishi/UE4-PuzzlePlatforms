@@ -42,6 +42,6 @@ void UInGameMenu::HandleCancelButtonClick()
 void UInGameMenu::HandleQuitButtonClick()
 {
 	if (ensure(this->MenuInterface != nullptr)) {
-		this->MenuInterface->QuitGame();
+		this->MenuInterface->QuitToMainMenu();
 	}
 }

@@ -7,6 +7,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Blueprint/UserWidget.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 UPuzzlePlatformsGameInstance::UPuzzlePlatformsGameInstance(const FObjectInitializer& ObjectInitializer): UGameInstance(ObjectInitializer)
 {
@@ -56,12 +57,17 @@ void UPuzzlePlatformsGameInstance::JoinGame(const FString &IpAddress)
 	this->GetFirstLocalPlayerController()->ClientTravel(IpAddress, ETravelType::TRAVEL_Absolute);
 }
 
-void UPuzzlePlatformsGameInstance::QuitGame()
+void UPuzzlePlatformsGameInstance::QuitToMainMenu()
 {
 	APlayerController* PlayerController = this->GetFirstLocalPlayerController();
 	if (ensure(PlayerController != nullptr)) {
 		PlayerController->ClientTravel(TEXT("/Game/MenuSystem/MainMenuLevel"), ETravelType::TRAVEL_Absolute);
 	}
+}
+
+void UPuzzlePlatformsGameInstance::QuitGame()
+{
+	UKismetSystemLibrary::QuitGame(this->GetWorld(), this->GetFirstLocalPlayerController(), EQuitPreference::Quit, false);
 }
 
 void UPuzzlePlatformsGameInstance::LoadGameMenu(TSubclassOf<UUserWidget> MenuClass)

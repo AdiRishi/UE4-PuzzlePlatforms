@@ -31,6 +31,9 @@ public:
 	UFUNCTION(Exec)
 	virtual void JoinGame(const FString& IpAddress) override;
 
+	UFUNCTION()
+	virtual void QuitToMainMenu() override;
+
 	UFUNCTION(Exec)
 	virtual void QuitGame() override;
 

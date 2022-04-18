@@ -38,6 +38,8 @@ public:
 
 	void SetSelectedRowIndex(uint32 RowIndex);
 
+	virtual void Teardown() override;
+
 protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UButton* HostButton;
@@ -78,8 +80,13 @@ protected:
 	UFUNCTION()
 	virtual void HandleJoinGameButtonClick();
 
+	UFUNCTION()
+	virtual void HandleSessionRefreshTimer();
+
 private:
 	TSubclassOf<UUserWidget> ServerRowClass;
 
 	TOptional<uint32> SelectedRowIndex;
+
+	FTimerHandle SessionRefreshTimerHandle;
 };

@@ -50,6 +50,8 @@ bool UMainMenu::Initialize()
 	this->AddToViewport();
 	this->SetServerList({});
 
+	this->GetWorld()->GetTimerManager().SetTimer(this->SessionRefreshTimerHandle, this, &UMainMenu::HandleSessionRefreshTimer, 5.f, true, 5.f);
+
 	return true;
 
 }
@@ -65,7 +67,6 @@ void UMainMenu::SetServerList(TArray<FString> ServerList)
 			this->ServerListScrollBox->AddChild(ServerRow);
 		}
 		else {
-			this->SelectedRowIndex.Reset();
 			uint32 Index = 0;
 			for (FString& ServerName : ServerList) {
 				UServerRow* ServerRow = CreateWidget<UServerRow>(this->ServerListScrollBox, this->ServerRowClass);
@@ -75,6 +76,10 @@ void UMainMenu::SetServerList(TArray<FString> ServerList)
 				Index++;
 			}
 		}
+
+		if (this->SelectedRowIndex.IsSet() && !ServerList.IsValidIndex(this->SelectedRowIndex.GetValue())) {
+			this->SelectedRowIndex.Reset();
+		}
 	}
 }
 
@@ -82,6 +87,13 @@ void UMainMenu::SetSelectedRowIndex(uint32 RowIndex)
 {
 	this->SelectedRowIndex = RowIndex;
 	UE_LOG(LogTemp, Warning, TEXT("Selected rowindex is %d"), RowIndex);
+}
+
+void UMainMenu::Teardown()
+{
+	Super::Teardown();
+
+	this->GetWorld()->GetTimerManager().ClearTimer(this->SessionRefreshTimerHandle);
 }
 
 void UMainMenu::HandleHostButtonClick()
@@ -114,7 +126,20 @@ void UMainMenu::HandleCancelButtonClick()
 
 void UMainMenu::HandleJoinGameButtonClick()
 {
-	if (ensure(this->MenuInterface != nullptr) && ensure(this->IpAddressTextBox != nullptr)) {
-		this->MenuInterface->JoinGame(this->IpAddressTextBox->GetText().BuildSourceString());
+	if (ensure(this->MenuInterface != nullptr)) {
+		if (this->SelectedRowIndex.IsSet()) {
+			this->MenuInterface->JoinGameViaSearchResultIndex(this->SelectedRowIndex.GetValue());
+		}
+		else if (this->IpAddressTextBox != nullptr && !this->IpAddressTextBox->GetText().IsEmpty()) {
+			this->MenuInterface->JoinGame(this->IpAddressTextBox->GetText().BuildSourceString());
+		}
+	}
+}
+
+void UMainMenu::HandleSessionRefreshTimer()
+{
+	if (this->MenuInterface != nullptr) {
+		UE_LOG(LogTemp, Warning, TEXT("Refreshing game list"));
+		this->MenuInterface->RefreshGameList();
 	}
 }

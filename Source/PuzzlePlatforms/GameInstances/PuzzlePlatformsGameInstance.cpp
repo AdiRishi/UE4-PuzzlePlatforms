@@ -38,11 +38,9 @@ void UPuzzlePlatformsGameInstance::Init()
 			this->SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnCreateSessionComplete);
 			this->SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnDestroySessionComplete);
 			this->SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnFindSessionsComplete);
+			this->SessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnJoinSessionComplete);
 
-			this->SessionSearch = MakeShareable(new FOnlineSessionSearch());
-			this->SessionSearch->bIsLanQuery = true;
-			//this->SessionSearch->QuerySettings.Set();
-			SessionInterface->FindSessions(0, this->SessionSearch.ToSharedRef());
+			this->RefreshGameList();
 		}
 	}
 	else {
@@ -136,12 +134,45 @@ void UPuzzlePlatformsGameInstance::OnFindSessionsComplete(bool bWasSuccessful)
 	}
 }
 
+void UPuzzlePlatformsGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type JoinResult)
+{
+	if (ensure(this->SessionInterface.IsValid())) {
+		FString Address;
+		if (!this->SessionInterface->GetResolvedConnectString(NAME_GameSession, Address)) {
+			UE_LOG(LogTemp, Warning, TEXT("Could not resolve connect string"));
+		}
+
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, TEXT("Joining Game - " + Address));
+		this->GetFirstLocalPlayerController()->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
+
+	}
+}
+
 void UPuzzlePlatformsGameInstance::JoinGame(const FString &IpAddress)
 {
 	FString TrimmedIp = IpAddress.TrimStartAndEnd();
 	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, TEXT("Joining Game " + TrimmedIp));
 
 	this->GetFirstLocalPlayerController()->ClientTravel(IpAddress, ETravelType::TRAVEL_Absolute);
+}
+
+void UPuzzlePlatformsGameInstance::JoinGameViaSearchResultIndex(uint32 Index)
+{
+	if (ensure(this->SessionInterface.IsValid()) && ensure(this->SessionSearch.IsValid())) {
+		if (ensure(SessionSearch->SearchResults.IsValidIndex(Index))) {
+			this->SessionInterface->JoinSession(0, NAME_GameSession, this->SessionSearch->SearchResults[Index]);
+		}
+	}
+}
+
+void UPuzzlePlatformsGameInstance::RefreshGameList()
+{
+	if (ensure(this->SessionInterface.IsValid())) {
+		this->SessionSearch = MakeShareable(new FOnlineSessionSearch());
+		this->SessionSearch->bIsLanQuery = true;
+		//this->SessionSearch->QuerySettings.Set();
+		SessionInterface->FindSessions(0, this->SessionSearch.ToSharedRef());
+	}
 }
 
 void UPuzzlePlatformsGameInstance::QuitToMainMenu()

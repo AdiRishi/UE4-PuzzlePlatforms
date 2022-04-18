@@ -26,6 +26,10 @@ public:
 
 	virtual void JoinGame(const FString &IpAddress) = 0;
 
+	virtual void JoinGameViaSearchResultIndex(uint32 Index) = 0;
+
+	virtual void RefreshGameList() = 0;
+
 	virtual void QuitToMainMenu() = 0;
 
 	virtual void QuitGame() = 0;

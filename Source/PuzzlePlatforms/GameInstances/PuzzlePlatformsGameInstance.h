@@ -32,6 +32,11 @@ public:
 	UFUNCTION(Exec)
 	virtual void JoinGame(const FString& IpAddress) override;
 
+	UFUNCTION(Exec)
+	virtual void JoinGameViaSearchResultIndex(uint32 Index);
+
+	virtual void RefreshGameList();
+
 	UFUNCTION()
 	virtual void QuitToMainMenu() override;
 
@@ -59,4 +64,5 @@ private:
 	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
 	void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
 	void OnFindSessionsComplete(bool bWasSuccessful);
+	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type JoinResult);
 };

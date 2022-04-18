@@ -3,6 +3,7 @@
 
 #include "PuzzlePlatformsGameInstance.h"
 #include "PuzzlePlatforms/MenuSystem/MenuWidgetBase.h"
+#include "PuzzlePlatforms/MenuSystem/MainMenu.h"
 
 #include "GameFramework/GameModeBase.h"
 #include "UObject/ConstructorHelpers.h"
@@ -36,6 +37,12 @@ void UPuzzlePlatformsGameInstance::Init()
 			UE_LOG(LogTemp, Warning, TEXT("Found Session Interface"));
 			this->SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnCreateSessionComplete);
 			this->SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnDestroySessionComplete);
+			this->SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnFindSessionsComplete);
+
+			this->SessionSearch = MakeShareable(new FOnlineSessionSearch());
+			this->SessionSearch->bIsLanQuery = true;
+			//this->SessionSearch->QuerySettings.Set();
+			SessionInterface->FindSessions(0, this->SessionSearch.ToSharedRef());
 		}
 	}
 	else {
@@ -75,6 +82,10 @@ void UPuzzlePlatformsGameInstance::HostGame()
 void UPuzzlePlatformsGameInstance::CreateSession()
 {
 	FOnlineSessionSettings SessionSettings;
+	SessionSettings.bIsLANMatch = true;
+	SessionSettings.NumPublicConnections = 2;
+	SessionSettings.bShouldAdvertise = true;
+
 	if (this->SessionInterface.IsValid()) {
 		if (!this->SessionInterface->CreateSession(0, NAME_GameSession, SessionSettings)) {
 			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Unable to host game as a server"));
@@ -103,6 +114,25 @@ void UPuzzlePlatformsGameInstance::OnDestroySessionComplete(FName SessionName, b
 	}
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("Session destruction failed"));
+	}
+}
+
+void UPuzzlePlatformsGameInstance::OnFindSessionsComplete(bool bWasSuccessful)
+{
+	TArray<FString> ServerList;
+	if (bWasSuccessful && this->SessionSearch.IsValid()) {
+		UE_LOG(LogTemp, Warning, TEXT("Successfuly found sessions"));
+		for (FOnlineSessionSearchResult SearchResult : this->SessionSearch->SearchResults) {
+			ServerList.Add(SearchResult.GetSessionIdStr());
+			UE_LOG(LogTemp, Warning, TEXT("Found session %s"), *SearchResult.GetSessionIdStr());
+		}
+
+		if (UMainMenu* MainMenu = Cast<UMainMenu>(this->CurrentWidget)) {
+			MainMenu->SetServerList(ServerList);
+		}
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("Find sessions failed"));
 	}
 }
 

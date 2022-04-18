@@ -52,9 +52,11 @@ private:
 	UUserWidget* CurrentWidget;
 
 	IOnlineSessionPtr SessionInterface;
+	TSharedPtr<FOnlineSessionSearch> SessionSearch;
 	bool bCreateOnDestroyRequested = false;
 
 	void CreateSession();
 	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
 	void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
+	void OnFindSessionsComplete(bool bWasSuccessful);
 };

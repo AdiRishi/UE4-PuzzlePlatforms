@@ -19,6 +19,8 @@ class PUZZLEPLATFORMS_API UInGameMenu : public UMenuWidgetBase
 	GENERATED_BODY()
 
 public:
+	UInGameMenu(const FObjectInitializer& ObjectInitializer);
+
 	virtual bool Initialize() override;
 
 protected:

@@ -12,6 +12,7 @@ class UButton; // #include "Components/Button.h"
 class UWidgetSwitcher; // #include "Components/WidgetSwitcher.h"
 class UEditableTextBox; // #include "Components/EditableTextBox.h"
 class IMenuInterface; // #include "MenuInterface.h
+class UScrollBox; // #include "Components/ScrollBox.h"
 
 UENUM()
 enum ESubMenu
@@ -32,6 +33,10 @@ public:
 	UMainMenu(const FObjectInitializer& ObjectInitializer);
 
 	virtual bool Initialize() override;
+
+	void SetServerList(TArray<FString> ServerList);
+
+	void SetSelectedRowIndex(uint32 RowIndex);
 
 protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
@@ -55,6 +60,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UEditableTextBox* IpAddressTextBox;
 
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UScrollBox* ServerListScrollBox;
+
 	UFUNCTION()
 	virtual void HandleHostButtonClick();
 
@@ -69,4 +77,9 @@ protected:
 
 	UFUNCTION()
 	virtual void HandleJoinGameButtonClick();
+
+private:
+	TSubclassOf<UUserWidget> ServerRowClass;
+
+	TOptional<uint32> SelectedRowIndex;
 };

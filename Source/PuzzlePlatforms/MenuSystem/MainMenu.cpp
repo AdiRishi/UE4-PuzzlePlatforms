@@ -3,14 +3,23 @@
 
 #include "MainMenu.h"
 #include "MenuInterface.h"
+#include "ServerRow.h"
 
+#include "UObject/ConstructorHelpers.h"
 #include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
 #include "Components/EditableTextBox.h"
+#include "Components/ScrollBox.h"
+#include "Components/TextBlock.h"
 
 UMainMenu::UMainMenu(const FObjectInitializer& ObjectInitializer): UMenuWidgetBase(ObjectInitializer)
 {
 	this->bIsFocusable = true;
+
+	ConstructorHelpers::FClassFinder<UUserWidget> BlueprintServerRowClass(TEXT("/Game/MenuSystem/WBP_ServerRow"));
+	if (BlueprintServerRowClass.Class != nullptr) {
+		this->ServerRowClass = BlueprintServerRowClass.Class;
+	}
 }
 
 bool UMainMenu::Initialize()
@@ -39,9 +48,40 @@ bool UMainMenu::Initialize()
 
 	this->Setup();
 	this->AddToViewport();
+	this->SetServerList({});
 
 	return true;
 
+}
+
+void UMainMenu::SetServerList(TArray<FString> ServerList)
+{
+	if (ensure(this->ServerListScrollBox != nullptr)) {
+		this->ServerListScrollBox->ClearChildren();
+		if (ServerList.Num() <= 0) {
+			UServerRow* ServerRow = CreateWidget<UServerRow>(this->ServerListScrollBox, this->ServerRowClass);
+			ServerRow->Setup(this, 0);
+			ServerRow->ServerNameTextBlock->SetText(FText::FromString(TEXT("Finding Servers...")));
+			this->ServerListScrollBox->AddChild(ServerRow);
+		}
+		else {
+			this->SelectedRowIndex.Reset();
+			uint32 Index = 0;
+			for (FString& ServerName : ServerList) {
+				UServerRow* ServerRow = CreateWidget<UServerRow>(this->ServerListScrollBox, this->ServerRowClass);
+				ServerRow->Setup(this, Index);
+				ServerRow->ServerNameTextBlock->SetText(FText::FromString(ServerName));
+				this->ServerListScrollBox->AddChild(ServerRow);
+				Index++;
+			}
+		}
+	}
+}
+
+void UMainMenu::SetSelectedRowIndex(uint32 RowIndex)
+{
+	this->SelectedRowIndex = RowIndex;
+	UE_LOG(LogTemp, Warning, TEXT("Selected rowindex is %d"), RowIndex);
 }
 
 void UMainMenu::HandleHostButtonClick()

@@ -8,6 +8,11 @@
 #include "MenuInterface.h"
 #include "PuzzlePlatforms/PlayerControllers/PuzzlePlatformsPlayerController.h"
 
+UInGameMenu::UInGameMenu(const FObjectInitializer& ObjectInitializer) : UMenuWidgetBase(ObjectInitializer)
+{
+	this->bIsFocusable = true;
+}
+
 bool UInGameMenu::Initialize()
 {
 	bool SuperInitialize = Super::Initialize();

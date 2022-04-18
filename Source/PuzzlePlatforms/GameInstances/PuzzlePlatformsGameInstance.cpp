@@ -80,12 +80,15 @@ void UPuzzlePlatformsGameInstance::HostGame()
 void UPuzzlePlatformsGameInstance::CreateSession()
 {
 	FOnlineSessionSettings SessionSettings;
-	SessionSettings.bIsLANMatch = true;
+	SessionSettings.bIsLANMatch = false;
 	SessionSettings.NumPublicConnections = 2;
 	SessionSettings.bShouldAdvertise = true;
+	SessionSettings.bUsesPresence = true;
+	SessionSettings.bUseLobbiesIfAvailable = true;
+	ULocalPlayer* FirstLocalPlayer = this->GetWorld()->GetFirstLocalPlayerFromController();
 
-	if (this->SessionInterface.IsValid()) {
-		if (!this->SessionInterface->CreateSession(0, NAME_GameSession, SessionSettings)) {
+	if (this->SessionInterface.IsValid() && FirstLocalPlayer != nullptr) {
+		if (!this->SessionInterface->CreateSession(*FirstLocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, SessionSettings)) {
 			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Unable to host game as a server"));
 		}
 	}
@@ -158,20 +161,27 @@ void UPuzzlePlatformsGameInstance::JoinGame(const FString &IpAddress)
 
 void UPuzzlePlatformsGameInstance::JoinGameViaSearchResultIndex(uint32 Index)
 {
-	if (ensure(this->SessionInterface.IsValid()) && ensure(this->SessionSearch.IsValid())) {
+	ULocalPlayer* FirstLocalPlayer = this->GetWorld()->GetFirstLocalPlayerFromController();
+	if (
+			ensure(this->SessionInterface.IsValid()) &&
+			ensure(this->SessionSearch.IsValid()) &&
+			ensure(FirstLocalPlayer != nullptr)
+	) {
 		if (ensure(SessionSearch->SearchResults.IsValidIndex(Index))) {
-			this->SessionInterface->JoinSession(0, NAME_GameSession, this->SessionSearch->SearchResults[Index]);
+			this->SessionInterface->JoinSession(*FirstLocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, this->SessionSearch->SearchResults[Index]);
 		}
 	}
 }
 
 void UPuzzlePlatformsGameInstance::RefreshGameList()
 {
-	if (ensure(this->SessionInterface.IsValid())) {
+	ULocalPlayer* FirstLocalPlayer = this->GetWorld()->GetFirstLocalPlayerFromController();
+	if (ensure(this->SessionInterface.IsValid()) && FirstLocalPlayer != nullptr) {
 		this->SessionSearch = MakeShareable(new FOnlineSessionSearch());
-		this->SessionSearch->bIsLanQuery = true;
-		//this->SessionSearch->QuerySettings.Set();
-		SessionInterface->FindSessions(0, this->SessionSearch.ToSharedRef());
+		this->SessionSearch->bIsLanQuery = false;
+		this->SessionSearch->MaxSearchResults = 400;
+		this->SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
+		SessionInterface->FindSessions(*FirstLocalPlayer->GetPreferredUniqueNetId(), this->SessionSearch.ToSharedRef());
 	}
 }
 

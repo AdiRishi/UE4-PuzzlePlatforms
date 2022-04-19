@@ -89,4 +89,6 @@ private:
 	TOptional<uint32> SelectedRowIndex;
 
 	FTimerHandle SessionRefreshTimerHandle;
+
+	TOptional<uint32> LastActiveIndex;
 };

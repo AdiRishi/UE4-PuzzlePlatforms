@@ -47,6 +47,8 @@ public:
 	void LoadGameMenu(TSubclassOf<UUserWidget> MenuClass);
 
 private:
+	bool bUseLanSession = true;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UUserWidget> MainMenuClass;
 

@@ -80,7 +80,7 @@ void UPuzzlePlatformsGameInstance::HostGame()
 void UPuzzlePlatformsGameInstance::CreateSession()
 {
 	FOnlineSessionSettings SessionSettings;
-	SessionSettings.bIsLANMatch = false;
+	SessionSettings.bIsLANMatch = this->bUseLanSession;
 	SessionSettings.NumPublicConnections = 2;
 	SessionSettings.bShouldAdvertise = true;
 	SessionSettings.bUsesPresence = true;
@@ -178,7 +178,7 @@ void UPuzzlePlatformsGameInstance::RefreshGameList()
 	ULocalPlayer* FirstLocalPlayer = this->GetWorld()->GetFirstLocalPlayerFromController();
 	if (ensure(this->SessionInterface.IsValid()) && FirstLocalPlayer != nullptr) {
 		this->SessionSearch = MakeShareable(new FOnlineSessionSearch());
-		this->SessionSearch->bIsLanQuery = false;
+		this->SessionSearch->bIsLanQuery = this->bUseLanSession;
 		this->SessionSearch->MaxSearchResults = 400;
 		this->SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
 		SessionInterface->FindSessions(*FirstLocalPlayer->GetPreferredUniqueNetId(), this->SessionSearch.ToSharedRef());

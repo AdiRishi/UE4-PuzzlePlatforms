@@ -24,6 +24,10 @@ public:
 
 	void Setup(UMainMenu* Parent, uint32 RowIndex);
 
+	void SetActive();
+
+	void Deactivate();
+
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UTextBlock* ServerNameTextBlock;
 
@@ -35,6 +39,15 @@ private:
 	UFUNCTION()
 	void HandleRowButtonClick();
 
+	UFUNCTION()
+	void HandleRowButtonHover();
+
+	UFUNCTION()
+	void HandleRowButtonUnHover();
+
+	void SetRowColor(const FColor &Color);
+
 	UMainMenu* ParentMenu;
 	uint32 RowIndex;
+	bool bIsActive;
 };

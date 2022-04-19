@@ -85,8 +85,22 @@ void UMainMenu::SetServerList(TArray<FString> ServerList)
 
 void UMainMenu::SetSelectedRowIndex(uint32 RowIndex)
 {
+	if (this->LastActiveIndex.IsSet()) {
+		if (UServerRow* LastActiveRow = Cast<UServerRow>(this->ServerListScrollBox->GetChildAt(this->LastActiveIndex.GetValue()))) {
+			LastActiveRow->Deactivate();
+		}
+	}
+
+	if (this->SelectedRowIndex.IsSet()) {
+		this->LastActiveIndex = this->SelectedRowIndex.GetValue();
+	}
+
 	this->SelectedRowIndex = RowIndex;
 	UE_LOG(LogTemp, Warning, TEXT("Selected rowindex is %d"), RowIndex);
+
+	if (UServerRow* ActiveRow = Cast<UServerRow>(this->ServerListScrollBox->GetChildAt(this->SelectedRowIndex.GetValue()))) {
+		ActiveRow->SetActive();
+	}
 }
 
 void UMainMenu::Teardown()

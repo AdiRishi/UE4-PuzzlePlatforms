@@ -27,7 +27,7 @@ public:
 	TSubclassOf<UUserWidget> GetInGameMenuClass() const;
 
 	UFUNCTION(Exec)
-	virtual void HostGame() override;
+	virtual void HostGame(const FString& GameName) override;
 
 	UFUNCTION(Exec)
 	virtual void JoinGame(const FString& IpAddress) override;
@@ -61,6 +61,8 @@ private:
 	IOnlineSessionPtr SessionInterface;
 	TSharedPtr<FOnlineSessionSearch> SessionSearch;
 	bool bCreateOnDestroyRequested = false;
+	FString StoredGameName;
+	const FName GameNameKey = TEXT("GameName");
 
 	void CreateSession();
 	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);

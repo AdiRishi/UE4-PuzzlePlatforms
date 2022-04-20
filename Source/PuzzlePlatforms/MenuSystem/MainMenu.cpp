@@ -45,6 +45,12 @@ bool UMainMenu::Initialize()
 	if (ensure(this->JoinGameButton != nullptr)) {
 		this->JoinGameButton->OnClicked.AddDynamic(this, &UMainMenu::HandleJoinGameButtonClick);
 	}
+	if (ensure(this->CancelHostMenuButton != nullptr)) {
+		this->CancelHostMenuButton->OnClicked.AddDynamic(this, &UMainMenu::HandleCancelButtonClick);
+	}
+	if (ensure(this->InnerHostButton != nullptr)) {
+		this->InnerHostButton->OnClicked.AddDynamic(this, &UMainMenu::HandleInnerHostButtonClick);
+	}
 
 	this->Setup();
 	this->AddToViewport();
@@ -73,7 +79,7 @@ void UMainMenu::SetServerList(const TArray<FServerData>& ServerList)
 			for (const FServerData& ServerData : ServerList) {
 				UServerRow* ServerRow = CreateWidget<UServerRow>(this->ServerListScrollBox, this->ServerRowClass);
 				ServerRow->Setup(this, Index);
-				ServerRow->ServerNameTextBlock->SetText(FText::FromString(ServerData.ServerId));
+				ServerRow->ServerNameTextBlock->SetText(FText::FromString(ServerData.GameName.IsEmpty() ? ServerData.ServerId : ServerData.GameName));
 				ServerRow->ServerOwnerTextBlock->SetText(FText::FromString(ServerData.HostUsername));
 				ServerRow->ServerOccupancyTextBlock->SetText(FText::FromString(FString::Printf(TEXT("%d/%d"), ServerData.CurrentPlayers, ServerData.MaxPlayers)));
 				this->ServerListScrollBox->AddChild(ServerRow);
@@ -116,8 +122,18 @@ void UMainMenu::Teardown()
 
 void UMainMenu::HandleHostButtonClick()
 {
-	if (this->MenuInterface != nullptr) {
-		this->MenuInterface->HostGame();
+	if (ensure(this->MenuSwitcher != nullptr)) {
+		this->MenuSwitcher->SetActiveWidgetIndex(ESubMenu::HostGameMenu);
+	}
+}
+
+void UMainMenu::HandleInnerHostButtonClick()
+{
+	if (ensure(this->HostGameNameTextBox != nullptr)) {
+		FText GameName = this->HostGameNameTextBox->GetText();
+		if (!GameName.IsEmpty() && ensure(this->MenuInterface != nullptr)) {
+			this->MenuInterface->HostGame(GameName.ToString());
+		}
 	}
 }
 

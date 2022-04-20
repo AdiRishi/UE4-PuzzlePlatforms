@@ -59,7 +59,7 @@ TSubclassOf<UUserWidget> UPuzzlePlatformsGameInstance::GetInGameMenuClass() cons
 	return this->InGameMenuClass;
 }
 
-void UPuzzlePlatformsGameInstance::HostGame()
+void UPuzzlePlatformsGameInstance::HostGame(const FString& GameName)
 {
 	if (this->GetWorld()->GetNetMode() == ENetMode::NM_Client) {
 		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Unable to host game as a server"));
@@ -68,6 +68,7 @@ void UPuzzlePlatformsGameInstance::HostGame()
 
 	if (this->SessionInterface.IsValid()) {
 		FNamedOnlineSession* ExistingSession = SessionInterface->GetNamedSession(NAME_GameSession);
+		this->StoredGameName = GameName;
 		if (ExistingSession == nullptr) {
 			this->CreateSession();
 		}
@@ -88,6 +89,7 @@ void UPuzzlePlatformsGameInstance::CreateSession()
 	SessionSettings.bUseLobbiesIfAvailable = true;
 	SessionSettings.bAllowJoinInProgress = true;
 	SessionSettings.bAllowJoinViaPresence = true;
+	SessionSettings.Set(this->GameNameKey, this->StoredGameName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 	ULocalPlayer* FirstLocalPlayer = this->GetWorld()->GetFirstLocalPlayerFromController();
 
 	if (this->SessionInterface.IsValid() && FirstLocalPlayer != nullptr) {
@@ -132,6 +134,10 @@ void UPuzzlePlatformsGameInstance::OnFindSessionsComplete(bool bWasSuccessful)
 			Data.MaxPlayers = SearchResult.Session.SessionSettings.NumPublicConnections;
 			Data.CurrentPlayers = Data.MaxPlayers - SearchResult.Session.NumOpenPublicConnections;
 			Data.HostUsername = SearchResult.Session.OwningUserName;
+			FString GameName;
+			if (SearchResult.Session.SessionSettings.Get(this->GameNameKey, GameName)) {
+				Data.GameName = GameName;
+			}
 
 			ServerList.Add(Data);
 			UE_LOG(LogTemp, Warning, TEXT("Found session %s"), *SearchResult.GetSessionIdStr());

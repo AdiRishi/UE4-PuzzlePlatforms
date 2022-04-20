@@ -22,11 +22,12 @@ struct FServerData {
 	uint16 MaxPlayers;
 	FString HostUsername;
 	FString ServerId;
+	FString GameName;
 
 	FServerData() : CurrentPlayers(0), MaxPlayers(0), HostUsername(), ServerId() {}
-	FServerData(uint16 NumMaxPlayers, uint16 NumCurrentPlayers, FString ServerHostUsername, FString ServerIdentifier)
+	FServerData(uint16 NumMaxPlayers, uint16 NumCurrentPlayers, FString ServerHostUsername, FString ServerIdentifier, FString ServerGameName)
 		: CurrentPlayers(NumCurrentPlayers), MaxPlayers(NumMaxPlayers),
-		HostUsername(ServerHostUsername), ServerId(ServerIdentifier) {}
+		HostUsername(ServerHostUsername), ServerId(ServerIdentifier), GameName(ServerGameName) {}
 };
 
 UENUM()
@@ -34,6 +35,7 @@ enum ESubMenu
 {
 	MainMenu = 0 UMETA(DisplayName = "MainMenu"),
 	JoinGameMenu = 1 UMETA(DisplayName = "JoinGameMenu"),
+	HostGameMenu = 2 UMETA(DisplayName = "HostGameMenu"),
 };
 
 /**
@@ -80,8 +82,21 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UScrollBox* ServerListScrollBox;
 
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UEditableTextBox* HostGameNameTextBox;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UButton* CancelHostMenuButton;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UButton* InnerHostButton;
+
+
 	UFUNCTION()
 	virtual void HandleHostButtonClick();
+
+	UFUNCTION()
+	virtual void HandleInnerHostButtonClick();
 
 	UFUNCTION()
 	virtual void HandleJoinMenuButtonClick();

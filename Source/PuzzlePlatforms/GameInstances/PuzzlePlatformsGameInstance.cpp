@@ -83,7 +83,7 @@ void UPuzzlePlatformsGameInstance::CreateSession()
 {
 	FOnlineSessionSettings SessionSettings;
 	SessionSettings.bIsLANMatch = this->bUseLanSession;
-	SessionSettings.NumPublicConnections = 2;
+	SessionSettings.NumPublicConnections = 3;
 	SessionSettings.bShouldAdvertise = true;
 	SessionSettings.bUsesPresence = true;
 	SessionSettings.bUseLobbiesIfAvailable = true;
@@ -103,7 +103,7 @@ void UPuzzlePlatformsGameInstance::OnCreateSessionComplete(FName SessionName, bo
 	if (bWasSuccessful) {
 		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, TEXT("Hosting Game"));
 
-		this->GetWorld()->ServerTravel(TEXT("/Game/ThirdPersonCPP/Maps/ThirdPersonExampleMap?listen"));
+		this->GetWorld()->ServerTravel(TEXT("/Game/ThirdPersonCPP/Maps/LobbyMap?listen"));
 	}
 	else {
 		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Game Hosting failed - session creation failure"));

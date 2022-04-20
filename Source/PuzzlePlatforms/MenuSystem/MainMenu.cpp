@@ -56,7 +56,7 @@ bool UMainMenu::Initialize()
 
 }
 
-void UMainMenu::SetServerList(TArray<FString> ServerList)
+void UMainMenu::SetServerList(const TArray<FServerData>& ServerList)
 {
 	if (ensure(this->ServerListScrollBox != nullptr)) {
 		this->ServerListScrollBox->ClearChildren();
@@ -64,14 +64,18 @@ void UMainMenu::SetServerList(TArray<FString> ServerList)
 			UServerRow* ServerRow = CreateWidget<UServerRow>(this->ServerListScrollBox, this->ServerRowClass);
 			ServerRow->Setup(this, 0);
 			ServerRow->ServerNameTextBlock->SetText(FText::FromString(TEXT("Finding Servers...")));
+			ServerRow->ServerOwnerTextBlock->SetText(FText::GetEmpty());
+			ServerRow->ServerOccupancyTextBlock->SetText(FText::GetEmpty());
 			this->ServerListScrollBox->AddChild(ServerRow);
 		}
 		else {
 			uint32 Index = 0;
-			for (FString& ServerName : ServerList) {
+			for (const FServerData& ServerData : ServerList) {
 				UServerRow* ServerRow = CreateWidget<UServerRow>(this->ServerListScrollBox, this->ServerRowClass);
 				ServerRow->Setup(this, Index);
-				ServerRow->ServerNameTextBlock->SetText(FText::FromString(ServerName));
+				ServerRow->ServerNameTextBlock->SetText(FText::FromString(ServerData.ServerId));
+				ServerRow->ServerOwnerTextBlock->SetText(FText::FromString(ServerData.HostUsername));
+				ServerRow->ServerOccupancyTextBlock->SetText(FText::FromString(FString::Printf(TEXT("%d/%d"), ServerData.CurrentPlayers, ServerData.MaxPlayers)));
 				this->ServerListScrollBox->AddChild(ServerRow);
 				Index++;
 			}

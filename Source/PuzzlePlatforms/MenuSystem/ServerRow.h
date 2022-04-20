@@ -31,6 +31,13 @@ public:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UTextBlock* ServerNameTextBlock;
 
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UTextBlock* ServerOwnerTextBlock;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UTextBlock* ServerOccupancyTextBlock;
+
+
 protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UButton* RowButton;

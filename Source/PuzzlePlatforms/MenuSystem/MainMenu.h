@@ -14,6 +14,21 @@ class UEditableTextBox; // #include "Components/EditableTextBox.h"
 class IMenuInterface; // #include "MenuInterface.h
 class UScrollBox; // #include "Components/ScrollBox.h"
 
+USTRUCT()
+struct FServerData {
+	GENERATED_BODY()
+
+	uint16 CurrentPlayers;
+	uint16 MaxPlayers;
+	FString HostUsername;
+	FString ServerId;
+
+	FServerData() : CurrentPlayers(0), MaxPlayers(0), HostUsername(), ServerId() {}
+	FServerData(uint16 NumMaxPlayers, uint16 NumCurrentPlayers, FString ServerHostUsername, FString ServerIdentifier)
+		: CurrentPlayers(NumCurrentPlayers), MaxPlayers(NumMaxPlayers),
+		HostUsername(ServerHostUsername), ServerId(ServerIdentifier) {}
+};
+
 UENUM()
 enum ESubMenu
 {
@@ -34,7 +49,7 @@ public:
 
 	virtual bool Initialize() override;
 
-	void SetServerList(TArray<FString> ServerList);
+	void SetServerList(const TArray<FServerData>& ServerList);
 
 	void SetSelectedRowIndex(uint32 RowIndex);
 

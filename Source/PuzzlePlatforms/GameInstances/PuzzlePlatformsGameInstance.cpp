@@ -86,6 +86,8 @@ void UPuzzlePlatformsGameInstance::CreateSession()
 	SessionSettings.bShouldAdvertise = true;
 	SessionSettings.bUsesPresence = true;
 	SessionSettings.bUseLobbiesIfAvailable = true;
+	SessionSettings.bAllowJoinInProgress = true;
+	SessionSettings.bAllowJoinViaPresence = true;
 	ULocalPlayer* FirstLocalPlayer = this->GetWorld()->GetFirstLocalPlayerFromController();
 
 	if (this->SessionInterface.IsValid() && FirstLocalPlayer != nullptr) {
@@ -121,15 +123,22 @@ void UPuzzlePlatformsGameInstance::OnDestroySessionComplete(FName SessionName, b
 
 void UPuzzlePlatformsGameInstance::OnFindSessionsComplete(bool bWasSuccessful)
 {
-	TArray<FString> ServerList;
+	TArray<FServerData> ServerList;
 	if (bWasSuccessful && this->SessionSearch.IsValid()) {
 		UE_LOG(LogTemp, Warning, TEXT("Successfuly found sessions"));
 		for (FOnlineSessionSearchResult SearchResult : this->SessionSearch->SearchResults) {
-			ServerList.Add(SearchResult.GetSessionIdStr());
+			FServerData Data;
+			Data.ServerId = SearchResult.GetSessionIdStr();
+			Data.MaxPlayers = SearchResult.Session.SessionSettings.NumPublicConnections;
+			Data.CurrentPlayers = Data.MaxPlayers - SearchResult.Session.NumOpenPublicConnections;
+			Data.HostUsername = SearchResult.Session.OwningUserName;
+
+			ServerList.Add(Data);
 			UE_LOG(LogTemp, Warning, TEXT("Found session %s"), *SearchResult.GetSessionIdStr());
 		}
 
 		if (UMainMenu* MainMenu = Cast<UMainMenu>(this->CurrentWidget)) {
+			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, FString::Printf(TEXT("Writing to server list with size %d"), ServerList.Num()));
 			MainMenu->SetServerList(ServerList);
 		}
 	}
@@ -180,7 +189,7 @@ void UPuzzlePlatformsGameInstance::RefreshGameList()
 	if (ensure(this->SessionInterface.IsValid()) && FirstLocalPlayer != nullptr) {
 		this->SessionSearch = MakeShareable(new FOnlineSessionSearch());
 		this->SessionSearch->bIsLanQuery = this->bUseLanSession;
-		this->SessionSearch->MaxSearchResults = 400;
+		this->SessionSearch->MaxSearchResults = 10000;
 		this->SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
 		SessionInterface->FindSessions(*FirstLocalPlayer->GetPreferredUniqueNetId(), this->SessionSearch.ToSharedRef());
 	}
